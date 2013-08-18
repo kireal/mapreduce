@@ -11,7 +11,7 @@
 
 import sys,os,getopt,optparse,string,commands
 
-def ReadStream (CitiesDS, CountriesDS):
+def ReadStream (CitiesDS, CountriesDS, key):
 	CitiesDS = [[]]
 	CountriesDS = [[]]
 	for line in sys.stdin:
@@ -26,9 +26,9 @@ def ReadStream (CitiesDS, CountriesDS):
 				CountriesDS.append(value[1:])
 		except:
 			print "*** Error join in two rows" + str(sys.argv[1:])
-	return(CitiesDS, CountriesDS)
+	return(CitiesDS, CountriesDS, key)
 
-def Join (JoinType, CitiesDS, CountriesDS):
+def Join (JoinType, CitiesDS, CountriesDS, key):
 	if len(JoinType) == 0:
 		JoinType = "Inner"
 	# -============== INNER JOIN PART ==============-			
@@ -39,7 +39,7 @@ def Join (JoinType, CitiesDS, CountriesDS):
 			for j in xrange(len(CountriesDS)):
 							if j == 0: # first elenent is null
 								continue
-							print '%s; %s; %s; %s' %(CitiesDS[i][0], CitiesDS[i][2], CountriesDS[j][0], CitiesDS[i][1]) #City CountryCode CountryName Population
+							print '%s; %s; %s; %s; %s' %(key, CitiesDS[i][0], CitiesDS[i][2], CountriesDS[j][0], CitiesDS[i][1]) #City CountryCode CountryName Population
 	# -============== LEFT OUTER JOIN PART ==============-
 	elif JoinType == "Left": #Left outer join
 		if len(CountriesDS)>1:
@@ -94,10 +94,11 @@ def Join (JoinType, CitiesDS, CountriesDS):
 		raise Exception("Unknown JoinType: " + JoinType)
 CitiesDS = [[]]
 CountriesDS = [[]]
-(CitiesDS, CountriesDS) = ReadStream(CitiesDS, CountriesDS)
+key = []
+(CitiesDS, CountriesDS, key) = ReadStream(CitiesDS, CountriesDS, key)
 JoinType = []
 try:
 	JoinType = os.environ['JoinType']
 except:
 	pass
-Join(JoinType,CitiesDS, CountriesDS)
+Join(JoinType,CitiesDS, CountriesDS, key)

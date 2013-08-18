@@ -31,11 +31,13 @@ How to start this demo:
 			[kireal@hadoop0 ~]$ hadoop fs -put /tmp/Cities.csv /user/kireal/join/reduceside/input/
 			[kireal@hadoop0 ~]$ hadoop fs -cat /user/kireal/join/reduceside/input/*
 			....
-	3. Run hadoop command
-		hadoop jar /opt/cloudera/parcels/CDH-4.3.0-1.cdh4.3.0.p0.22/lib/hadoop-mapreduce/hadoop-streaming.jar \
-		-D mapred.map.tasks=1 mapred.reduce.tasks=1 -file /home/kireal/mapred/join/reduceside/joinmapper.py -mapper joinmapper.py \
-		-file /home/kireal/mapred/join/reduceside/joinmapper.py -reducer joinreducer.py \
-		-input  /user/kireal/join/reduceside/input -output /user/kireal/join/reduceside/output
+	3. Run hadoop command:
+
+hadoop jar /opt/cloudera/parcels/CDH-4.3.0-1.cdh4.3.0.p0.22/lib/hadoop-mapreduce/hadoop-streaming.jar \
+-file /home/kireal/mapred/join/reduceside/joinmapper.py -mapper joinmapper.py \
+-file /home/kireal/mapred/join/reduceside/joinreducer.py -reducer joinreducer.py \
+-input  /user/kireal/join/reduceside/input -output /user/kireal/join/reduceside/output
+	
 	4. Check results
 		hadoop dfs cat
 	5. Think about so you're cool. You're almost data scientist!
