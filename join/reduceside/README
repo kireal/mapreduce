@@ -1,5 +1,5 @@
 Author: Chufarov Kirill aka kireal.
-18.08.2013
+20.08.2013
 =================================================================================================
 1. This's example of MapReduce coding approach.
 2. Reduce side join two DataSets writing python scripts (Map and Reduce) and using hadoop 
@@ -21,23 +21,40 @@ streaming.
 
 How to start this demo:
 	1. Install hadoop (simplest way: one node cloudera hadoop)
-	2. Put datafiles to HDFS:
-		2.1 create input directory
-			[kireal@hadoop0 ~]$ hadoop fs -mkdir /user/kireal/join
-			[kireal@hadoop0 ~]$ hadoop fs -mkdir /user/kireal/join/reduceside
-			[kireal@hadoop0 ~]$ hadoop fs -mkdir /user/kireal/join/reduceside/input
-		2.3 put files
-			[kireal@hadoop0 ~]$ hadoop fs -put /tmp/Countries.csv /user/kireal/join/reduceside/input/
-			[kireal@hadoop0 ~]$ hadoop fs -put /tmp/Cities.csv /user/kireal/join/reduceside/input/
-			[kireal@hadoop0 ~]$ hadoop fs -cat /user/kireal/join/reduceside/input/*
+	2. Clone repository
+		git clone git@github.com:kireal/mapreduce.git
+	3. Put datafiles to HDFS:
+		3.1 create input directory
+			[kireal@hadoop0 ~]$ hadoop fs -mkdir /Users/hadoop/join/reduceside/input
+		3.2 put files
+			Kirills-MacBook-Pro:reduceside hadoop$ hadoop fs -put /tmp/Countries.csv /Users/hadoop/join/reduceside/input/
+			Kirills-MacBook-Pro:reduceside hadoop$ hadoop fs -put /tmp/Cities.csv /Users/hadoop/join/reduceside/input/
+			Kirills-MacBook-Pro:reduceside hadoop$ hadoop fs -cat /Users/hadoop/join/reduceside/input/*
 			....
-	3. Run hadoop command:
 
-hadoop jar /opt/cloudera/parcels/CDH-4.3.0-1.cdh4.3.0.p0.22/lib/hadoop-mapreduce/hadoop-streaming.jar \
--file /home/kireal/mapred/join/reduceside/joinmapper.py -mapper joinmapper.py \
--file /home/kireal/mapred/join/reduceside/joinreducer.py -reducer joinreducer.py \
--input  /user/kireal/join/reduceside/input -output /user/kireal/join/reduceside/output
-	
-	4. Check results
-		hadoop dfs cat
-	5. Think about so you're cool. You're almost data scientist!
+	4. Run hadoop command:
+
+		Kirills-MacBook-Pro:reduceside hadoop$ hadoop jar /Applications/hadoop/contrib/streaming/hadoop-streaming-1.2.1.jar \
+		-partitioner org.apache.hadoop.mapred.lib.KeyFieldBasedPartitioner \
+		-file /Users/hadoop/reduceside/joinmapper.py -mapper joinmapper.py \
+		-file /Users/hadoop/reduceside/joinreducer.py -reducer joinreducer.py \
+		-cmdenv JoinType=Full \
+		-input  /Users/hadoop/join/reduceside/input \
+		-output /Users/hadoop/join/reduceside/output \
+		-jobconf stream.num.map.output.key.fields=1 \
+		-jobconf num.key.fields.for.partition=1 \
+		-jobconf mapred.text.key.partitioner.options=-k1,1
+
+	CDH hadoop-streaming.jar:
+		/opt/cloudera/parcels/CDH-4.3.0-1.cdh4.3.0.p0.22/lib/hadoop-mapreduce/hadoop-streaming.jar
+
+	5. Check results
+		Kirills-MacBook-Pro:reduceside hadoop$ hadoop fs -cat /Users/hadoop/join/reduceside/output/*
+			Minsk; 1700000; Belarus; BLR	
+			Paris; 4500000; ; FRN	
+			; ; Greate Britain; 	
+			Moscow; 15000000; Russia; RUS	
+			Omsk; 900000; Russia; RUS	
+			Chicago; 3500000; The United State of America; US	
+
+	6. Think about so you're cool. You're almost data scientist!

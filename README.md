@@ -1,4 +1,4 @@
 mapreduce
 =========
 
-Example for map reduce coding approach
+Example of mapreduce coding approach
