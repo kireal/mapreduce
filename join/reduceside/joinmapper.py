@@ -25,51 +25,40 @@ def mapper(params):
 	IntermKeyDelim = '\t'
 	PrintLeftstr = '%s' + IntermKeyDelim + '%s' #first is key, second dataset tag
 	PrintRightstr = '%s' + IntermKeyDelim + '%s' #first is key, second dataset tag
-	for i in xrange(len(SelectLeftIDX)):
-		PrintLeftstr = PrintLeftstr + IntermediateDelim + '%s'
-	for i in xrange(len(SelectLeftIDX)):
-		PrintRightstr = PrintLeftstr + IntermediateDelim + '%s'
+	LeftDSKeyIDX = JoinKeyIDX.split(";")[0]
+	RightDSKeyIDX = JoinKeyIDX.split(";")[1]
+#	for i in xrange(len(SelectLeftIDX)):
+#		PrintLeftstr = PrintLeftstr + IntermediateDelim + '%s'
+#	for i in xrange(len(SelectLeftIDX)):
+#		PrintRightstr = PrintLeftstr + IntermediateDelim + '%s'
 	# ================= PARSING SECTION ========================
 	for line in sys.stdin:
+		value = []
+		key = []
 		line = line.strip()
 		LeftColCount = line.count(LeftDSDelim) #Cheating! beasause hadoop streaming cannot set different mappers on different inputs!
 		RightColCount = line.count(RightDSDelim) #Cheating! beasause hadoop streaming cannot set different mappers on different inputs!
-		if DSColCounts = LeftColCount: #input left dataset
+		if DSColCounts == LeftColCount: #input left dataset
 			#process left
-			LeftKey = 
-		elif DSColCounts = RightColCount: #input right dataset
+			split_line = line.split(LeftDSDelim) # split record
+			key = [split_line[int(i)] for i in LeftDSKeyIDX.split(",")] # get key from record
+			value = [split_line[int(i)] for i in SelectLeftIDX.split(",")] # get velue from record
+			value.insert(0,"L")
+		elif DSColCounts == RightColCount: #input right dataset
 			#process right
+			split_line = line.split(RightDSDelim) # split record
+			key = [split_line[int(i)] for i in RightDSKeyIDX.split(",")] # get key from record
+			value = [split_line[int(i)] for i in SelectRightIDX.split(",")] # get velue from record
+			value.insert(0,"R")
 		else: #unknown dataset or parsing error
-
-
-
-
-
-		if CommaCount==1:
-			try:
-				split_txt = line.split(";")
-				CountryCode = split_txt[1]
-				CountryName = split_txt[0]
-				print '%s\t%s,%s' %(CountryCode,"CN",CountryName) #CountryCode is a key, CN is a tag for Country data set, rest part of output is a value
-			except:
-				print "*** Error rows in file with parameters " + str(sys.argv[1:])
-		elif CommaCount==2:
-			try:
-				split_txt = line.split(";")
-				City = split_txt[0]
-				CountryCode = split_txt[1]
-				Population = split_txt[2]
-				print '%s\t%s,%s,%s,%s' %(CountryCode,"CT",City,CountryCode,Population) #CountryCode is a key, CT is a tag for Cities data set, rest part of output is a value
-			except:
-				print "*** Error rows in file with parameters " + str(sys.argv[1:])
-		else:
-			print "*** Error rows in file with parameters " + str(sys.argv[1:])
+			raise Exception("Unknown data set")
+		print '\t'.join(key) + '\t' + ';'.join(value)
 
 LeftDSDelim = ";" #delimeter in left data set
 RightDSDelim = ";" #delimeter in left data set
-DSColCounts = [10, 10] #column count in each dataset
-SelectIDX = [-1,-1] #-1 means select all column from dataset
-JoinKeyIDX = [1,1] #it means join by first column by default
+DSColCounts = "10, 10" #column count in each dataset
+SelectIDX = "-1;-1" #-1 means select all column from dataset
+JoinKeyIDX = "1;1" #it means join by first column by default
 params = [[]]
 try:
 	LeftDSDelim = os.environ['LeftDSDelim']
