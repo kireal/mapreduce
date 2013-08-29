@@ -7,58 +7,64 @@
 #	Simple python script to join to data set (files)
 #	Reduce side implementation (map by key, tagging and loop output in reduce step)
 #
-# 21.08.2013
+# 30.08.2013
 #
-
 import sys,os,getopt,optparse,string,commands
-
 def mapper(params):
 	# ================= PARAMETERS SECTION ========================
 	LeftDSDelim = params[0]
 	RightDSDelim = params[1]
 	DSColCounts = params[2].split(",")
+	DSColLeftCounts = int(DSColCounts[0])
+	DSColRightCounts = int(DSColCounts[1])
 	SelectIDX = params[3]
 	JoinKeyIDX = params[4]
-	SelectLeftIDX = SelectIDX.split(";")[0];
-	SelectRightIDX = SelectIDX.split(";")[1];
-	IntermValDelim = ";"
+	if SelectIDX.count(";")>0:
+		SelectLeftIDX = SelectIDX.split(";")[0];
+		SelectRightIDX = SelectIDX.split(";")[1];
+	else:
+		SelectLeftIDX = ""
+		SelectRightIDX = ""
+	Delimeter = ";"
 	IntermKeyDelim = '\t'
 	PrintLeftstr = '%s' + IntermKeyDelim + '%s' #first is key, second dataset tag
 	PrintRightstr = '%s' + IntermKeyDelim + '%s' #first is key, second dataset tag
 	LeftDSKeyIDX = JoinKeyIDX.split(";")[0]
 	RightDSKeyIDX = JoinKeyIDX.split(";")[1]
-#	for i in xrange(len(SelectLeftIDX)):
-#		PrintLeftstr = PrintLeftstr + IntermediateDelim + '%s'
-#	for i in xrange(len(SelectLeftIDX)):
-#		PrintRightstr = PrintLeftstr + IntermediateDelim + '%s'
 	# ================= PARSING SECTION ========================
 	for line in sys.stdin:
 		value = []
 		key = []
 		line = line.strip()
-		LeftColCount = line.count(LeftDSDelim) #Cheating! beasause hadoop streaming cannot set different mappers on different inputs!
-		RightColCount = line.count(RightDSDelim) #Cheating! beasause hadoop streaming cannot set different mappers on different inputs!
-		if DSColCounts == LeftColCount: #input left dataset
+		LeftColCount = line.count(LeftDSDelim)+1 
+		RightColCount = line.count(RightDSDelim)+1
+		if DSColLeftCounts == LeftColCount: #input left dataset
 			#process left
-			split_line = line.split(LeftDSDelim) # split record
-			key = [split_line[int(i)] for i in LeftDSKeyIDX.split(",")] # get key from record
-			value = [split_line[int(i)] for i in SelectLeftIDX.split(",")] # get velue from record
-			value.insert(0,"L")
-		elif DSColCounts == RightColCount: #input right dataset
+			Delim = LeftDSDelim
+			DSKeyIDX = LeftDSKeyIDX
+			SelectIDX = SelectLeftIDX
+			tag = "L"
+		elif DSColRightCounts == RightColCount: #input right dataset
 			#process right
-			split_line = line.split(RightDSDelim) # split record
-			key = [split_line[int(i)] for i in RightDSKeyIDX.split(",")] # get key from record
-			value = [split_line[int(i)] for i in SelectRightIDX.split(",")] # get velue from record
-			value.insert(0,"R")
+			Delim = RightDSDelim
+			DSKeyIDX = RightDSKeyIDX
+			SelectIDX = SelectRightIDX
+			tag = "R"
 		else: #unknown dataset or parsing error
 			raise Exception("Unknown data set")
-		print '\t'.join(key) + '\t' + ';'.join(value)
-
+		split_line = line.split(Delim) # split record
+		key = [split_line[int(i)] for i in DSKeyIDX.split(",")] # get key from record
+		if len(SelectIDX)>0:
+			value = [split_line[int(i)] for i in SelectIDX.split(",")] # get velue from record
+		else:
+			value = split_line
+		value.insert(0,tag)
+		print Delimeter.join(key) + IntermKeyDelim + Delimeter.join(value)
 LeftDSDelim = ";" #delimeter in left data set
 RightDSDelim = ";" #delimeter in left data set
-DSColCounts = "10, 10" #column count in each dataset
-SelectIDX = "-1;-1" #-1 means select all column from dataset
-JoinKeyIDX = "1;1" #it means join by first column by default
+DSColCounts = "1, 1" #column count in each dataset
+SelectIDX = "" # "" means select all column from dataset
+JoinKeyIDX = "1; 1" #it means join by first column by default
 params = [[]]
 try:
 	LeftDSDelim = os.environ['LeftDSDelim']

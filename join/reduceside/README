@@ -1,5 +1,5 @@
 Author: Chufarov Kirill aka kireal.
-20.08.2013
+30.08.2013
 =================================================================================================
 1. This's example of MapReduce coding approach.
 2. Reduce side join two DataSets writing python scripts (Map and Reduce) and using hadoop 
@@ -11,3 +11,25 @@ streaming.
 	SelectIDX - select IDX (column) for dataset (left;right). Example SelectIDX="1 2 3 4 5; 3 2 1 4"
 	JoinKeyIDX - IDX (column) for join predicat. Example JoinKeyIDX="2 5;1 5"
 	JoinType - type of join (Inner, Left, Right, Full)
+5. Example run
+	5.1 Download example data from (https://developers.google.com/freebase/data), go to "Freebase Deleted Triples"
+	5.2 Unzip data
+	5.2 Make two datasets:
+		cat deletions/deletions.csv-00005-of-00020 | awk -F, '{print $1,$2,$3}' OFS=, > LeftDS
+		cat deletions/deletions.csv-00005-of-00020 | awk -F, '{print $1,$2,$3,$4}' OFS=, > RightDS
+	5.3 Put data to HDFS:
+		hadoop fs -mkdir /user/hadoop/join/input
+		hadoop fs -put RightDS /user/hadoop/join/input
+		hadoop fs -put LeftDS /user/hadoop/join/input
+	5.4 Run Map Reduse task:
+		hadoop jar /Applications/hadoop/contrib/streaming/hadoop-streaming-1.2.1.jar \
+		-partitioner org.apache.hadoop.mapred.lib.KeyFieldBasedPartitioner \
+		-file /Users/hadoop/mapreduce/join/reduceside/joinmapper.py -mapper joinmapper.py \
+		-file /Users/hadoop/mapreduce/join/reduceside/joinreducer.py -reducer joinreducer.py \
+		-input  /user/hadoop/join/input \
+		-output /user/hadoop/join/output \
+		-jobconf stream.map.output.field.separator=\t \
+		-jobconf stream.num.map.output.key.fields=1 \
+		-jobconf num.key.fields.for.partition=1 \
+		-cmdenv LeftDSDelim="," -cmdenv RightDSDelim="," -cmdenv JoinKeyIDX="0; 0"  \
+		-cmdenv SelectIDX="0,1,2;0,1,2" -cmdenv JoinType="Inner" -cmdenv DSColCounts="3, 4" \

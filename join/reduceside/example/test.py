@@ -1,9 +1,13 @@
+import random
 a = [1, 2, 3, 4, 5, 6]
 idx = [1, 2, 3]
+d = ["","","",""]
+e = [1,2,3]
 #print '%s,%s,%s' %([a[int(i)] for i in idx])
 b = [str(a[int(i)]) for i in idx]
 print '\t'.join(b) + '\t' + ';'.join(b)
-
+print e
+print ';'.join(d)
 line = "1;2;3;4;5;6;7"
 LeftDSKeyIDX = "2,3,4"
 SelectLeftIDX = "5,6"
@@ -15,5 +19,10 @@ value = ""
 key = [split_line[int(i)] for i in keyidx] # get key from record
 value = [split_line[int(i)] for i in selidx] # get velue from record
 value.insert(0,"L")
-print key
-print value
+print str(d).strip('[]').strip("'")
+print ';'.join(b), ';'.join(str(d).strip('[]'))
+y = [';' for x in range(4)]
+z = [[]]
+z.append(y)
+print z
+print ''.join(z[1])
