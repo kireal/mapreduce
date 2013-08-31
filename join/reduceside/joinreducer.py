@@ -99,7 +99,7 @@ def ReadStream (JoinType, DSColCounts, SelectIDX):
 				LeftDS.append(value[1:])
 			elif value[0]=="R":
 				RightDS.append(value[1:])
-	Join(JoinType, LeftDS, RightDS, Delimeter, SelectIDX) #Join DSs - last key
+	Join(JoinType, LeftDS, RightDS, DelimeterL, DelimeterR) #Join DSs - last key
 JoinType = "Inner"
 DSColCounts = "1, 1" #column count in each dataset
 SelectIDX = ""
