@@ -27,8 +27,6 @@ def mapper(params):
 		SelectRightIDX = ""
 	Delimeter = ";"
 	IntermKeyDelim = '\t'
-	PrintLeftstr = '%s' + IntermKeyDelim + '%s' #first is key, second dataset tag
-	PrintRightstr = '%s' + IntermKeyDelim + '%s' #first is key, second dataset tag
 	LeftDSKeyIDX = JoinKeyIDX.split(";")[0]
 	RightDSKeyIDX = JoinKeyIDX.split(";")[1]
 	# ================= PARSING SECTION ========================

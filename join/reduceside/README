@@ -30,5 +30,5 @@ hadoop jar /Applications/hadoop/contrib/streaming/hadoop-streaming-1.2.1.jar \
 -jobconf stream.map.output.field.separator=\t \
 -jobconf stream.num.map.output.key.fields=1 \
 -jobconf num.key.fields.for.partition=1 \
--cmdenv LeftDSDelim="," -cmdenv RightDSDelim="," -cmdenv JoinKeyIDX="0; 0"  \
--cmdenv SelectIDX="0,1,2;0,1,2" -cmdenv JoinType="Inner" -cmdenv DSColCounts="3, 4" \
+-cmdenv LeftDSDelim="," -cmdenv RightDSDelim="," -cmdenv JoinKeyIDX="0;0"  \
+-cmdenv SelectIDX="0,1,2,3;0,1,2" -cmdenv JoinType="Inner" -cmdenv DSColCounts="4,3"
