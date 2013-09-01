@@ -14,19 +14,19 @@ def Join (JoinType, LeftDS, RightDS, DelimeterL, DelimeterR):
 	# -============== INNER JOIN PART ==============-
 	if JoinType == "Inner":	#Inner
 		for i in xrange(len(LeftDS)):
-			if i == 0: # first elenent is null
+			if i == 0: # first element is null
 				continue
 			for j in xrange(len(RightDS)):
-				if j == 0: # first elenent is null
+				if j == 0: # first element is null
 					continue
 				print DelimeterL.join(LeftDS[i]) + DelimeterR.join(RightDS[j])
 	# -============== LEFT OUTER JOIN PART ==============-
 	elif JoinType == "Left": #Left outer join
 		for i in xrange(len(LeftDS)):
-			if i == 0: # first elenent is null
+			if i == 0: # first element is null
 				continue
 			for j in xrange(len(RightDS)):
-				if j == 0: # first elenent is null
+				if j == 0: # first element is null
 					continue
 			print DelimeterL.join(LeftDS[i]) + DelimeterR.join(RightDS[j])
 	# -============== RIGHT OUTER JOIN PART ==============-	
@@ -85,10 +85,10 @@ def ReadStream (JoinType, DSColCounts, SelectIDX):
 			if key != PrevKey:
 				PrevKey = key
 				if iter == 1:
-					if len(LeftDS) == 1 and JoinType!="Inner":
+					if len(LeftDS) == 1 and (JoinType=="Full" or JoinType=="Right"):
 						LeftDS.append(LeftZeroDS)
 						DelimeterL = '' 
-					if len(RightDS) == 1 and JoinType!="Inner":
+					if len(RightDS) == 1 and (JoinType=="Full" or JoinType=="Left"):
 						RightDS.append(RightZeroDS)	
 						DelimeterR = ''				
 					Join(JoinType, LeftDS, RightDS, DelimeterL, DelimeterR) #Join DSs
