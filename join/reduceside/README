@@ -16,37 +16,51 @@ streaming.
 	4.2 Make two datasets (use one of these methods):
 		4.2.1 Use AWK
 			4.2.1.1
-				cat deletions/deletions.csv-00005-of-00020 | awk -F, '{print $1,$2,$3}' OFS=, > LeftDS
-				cat deletions/deletions.csv-00005-of-00020 | awk -F, '{print $1,$2,$3,$4}' OFS=, > RightDS
+				cat deletions/deletions.csv-00001-of-00020 | awk -F, '{print $1,$2,$3}' OFS=, > LeftDS
+				cat deletions/deletions.csv-00001-of-00020 | awk -F, '{print $1,$2,$3,$4}' OFS=, > RightDS
 			4.2.1.2 Put data to HDFS:
 				hadoop fs -mkdir /user/hadoop/join/input
 				hadoop fs -put RightDS /user/hadoop/join/input
 				hadoop fs -put LeftDS /user/hadoop/join/input
-		4.2.2
-			4.2.2.1
+		4.2.2 use simple Map Reduce projection
+			4.2.2.1 Put data into hadoop FS (HDFS)
 				hadoop fs -put deletions/deletions.csv* /user/hadoop/join/input
-			4.2.2.2
-				hadoop jar /Applications/hadoop/contrib/streaming/hadoop-streaming-1.2.1.jar \
-				-partitioner org.apache.hadoop.mapred.lib.KeyFieldBasedPartitioner \
-				-file /Users/hadoop/mapreduce/projection/mapper.py -mapper mapper.py \
-				-input  /user/hadoop/join/input \
-				-output /user/hadoop/join/inputL \
-				-jobconf mapred.map.tasks=4 \
-				-jobconf mapred.reduce.tasks=0 \
-				-jobconf stream.map.output.field.separator=\t \
-				-jobconf stream.num.map.output.key.fields=1 \
-				-jobconf num.key.fields.for.partition=1 \
-				-cmdenv Delimeter="," -cmdenv SelectIDX=","
+			4.2.2.2 Run Map Reduce task
+				 4.2.2.2.1 Left DS
+					hadoop jar /Applications/hadoop/contrib/streaming/hadoop-streaming-1.2.1.jar \
+					-partitioner org.apache.hadoop.mapred.lib.KeyFieldBasedPartitioner \
+					-file /Users/hadoop/mapreduce/projection/mapper.py -mapper mapper.py \
+					-input  /user/hadoop/join/input \
+					-output /user/hadoop/join/inputL \
+					-jobconf mapred.map.tasks=4 \
+					-jobconf mapred.reduce.tasks=0 \
+					-jobconf stream.map.output.field.separator=\t \
+					-jobconf stream.num.map.output.key.fields=1 \
+					-jobconf num.key.fields.for.partition=1 \
+					-cmdenv Delimeter="," -cmdenv SelectIDX="0,1,2,3,4"
+				4.2.2.2.2 Right DS
+					hadoop jar /Applications/hadoop/contrib/streaming/hadoop-streaming-1.2.1.jar \
+					-partitioner org.apache.hadoop.mapred.lib.KeyFieldBasedPartitioner \
+					-file /Users/hadoop/mapreduce/projection/mapper.py -mapper mapper.py \
+					-input  /user/hadoop/join/input \
+					-output /user/hadoop/join/inputR \
+					-jobconf mapred.map.tasks=4 \
+					-jobconf mapred.reduce.tasks=0 \
+					-jobconf stream.map.output.field.separator=\t \
+					-jobconf stream.num.map.output.key.fields=1 \
+					-jobconf num.key.fields.for.partition=1 \
+					-cmdenv Delimeter="," -cmdenv SelectIDX="0,1,2,3"
 	4.4 Run Map Reduse task:
 hadoop jar /Applications/hadoop/contrib/streaming/hadoop-streaming-1.2.1.jar \
 -partitioner org.apache.hadoop.mapred.lib.KeyFieldBasedPartitioner \
 -file /Users/hadoop/mapreduce/join/reduceside/joinmapper.py -mapper joinmapper.py \
 -file /Users/hadoop/mapreduce/join/reduceside/joinreducer.py -reducer joinreducer.py \
--input  /user/hadoop/join/input \
+-input  /user/hadoop/join/inputL \
+-input  /user/hadoop/join/inputR \
 -output /user/hadoop/join/output \
--jobconf mapred.reduce.tasks=4
+-jobconf mapred.reduce.tasks=4 \
 -jobconf stream.map.output.field.separator=\t \
 -jobconf stream.num.map.output.key.fields=1 \
 -jobconf num.key.fields.for.partition=1 \
 -cmdenv LeftDSDelim="," -cmdenv RightDSDelim="," -cmdenv JoinKeyIDX="0;0"  \
--cmdenv SelectIDX="0,1,2,3;0,1,2" -cmdenv JoinType="Inner" -cmdenv DSColCounts="4,3"
+-cmdenv SelectIDX="0,1,2,3;0,1,2,3" -cmdenv JoinType="Inner" -cmdenv DSColCounts="5,4"

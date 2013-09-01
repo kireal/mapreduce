@@ -31,8 +31,6 @@ def mapper(params):
 	RightDSKeyIDX = JoinKeyIDX.split(";")[1]
 	# ================= PARSING SECTION ========================
 	for line in sys.stdin:
-		value = []
-		key = []
 		line = line.strip()
 		LeftColCount = line.count(LeftDSDelim)+1 
 		RightColCount = line.count(RightDSDelim)+1
@@ -49,15 +47,18 @@ def mapper(params):
 			SelectIDX = SelectRightIDX
 			tag = "R"
 		else: #unknown dataset or parsing error
-			raise Exception("Unknown data set")
+			continue #raise Exception("Unknown data set"), unknown line, got to next
 		split_line = line.split(Delim) # split record
-		key = [split_line[int(i)] for i in DSKeyIDX.split(",")] # get key from record
-		if len(SelectIDX)>0:
-			value = [split_line[int(i)] for i in SelectIDX.split(",")] # get velue from record
-		else:
-			value = split_line
-		value.insert(0,tag)
-		print Delimeter.join(key) + IntermKeyDelim + Delimeter.join(value)
+		try:
+			key = [split_line[int(i)] for i in DSKeyIDX.split(",")] # get key from record
+			if len(SelectIDX)>0:
+				value = [split_line[int(i)] for i in SelectIDX.split(",")] # get velue from record
+			else:
+				value = split_line
+			value.insert(0,tag)
+			print Delimeter.join(key) + IntermKeyDelim + Delimeter.join(value)
+		except:
+			print "Unknown dataset or cannot parse row"
 LeftDSDelim = ";" #delimeter in left data set
 RightDSDelim = ";" #delimeter in left data set
 DSColCounts = "1, 1" #column count in each dataset
