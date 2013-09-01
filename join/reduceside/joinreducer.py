@@ -12,43 +12,13 @@
 import sys,os,getopt,optparse,string,commands
 def Join (JoinType, LeftDS, RightDS, DelimeterL, DelimeterR):
 	# -============== INNER JOIN PART ==============-
-	if JoinType == "Inner":	#Inner
-		for i in xrange(len(LeftDS)):
-			if i == 0: # first element is null
+	for i in xrange(len(LeftDS)):
+		if i == 0: # first element is null
+			continue
+		for j in xrange(len(RightDS)):
+			if j == 0: # first element is null
 				continue
-			for j in xrange(len(RightDS)):
-				if j == 0: # first element is null
-					continue
-				print DelimeterL.join(LeftDS[i]) + DelimeterR.join(RightDS[j])
-	# -============== LEFT OUTER JOIN PART ==============-
-	elif JoinType == "Left": #Left outer join
-		for i in xrange(len(LeftDS)):
-			if i == 0: # first element is null
-				continue
-			for j in xrange(len(RightDS)):
-				if j == 0: # first element is null
-					continue
-			print DelimeterL.join(LeftDS[i]) + DelimeterR.join(RightDS[j])
-	# -============== RIGHT OUTER JOIN PART ==============-	
-	elif JoinType == "Right": #Rigth outer join
-		for i in xrange(len(LeftDS)):
-			if i == 0: # first element is null
-				continue
-			for j in xrange(len(RightDS)):
-				if j == 0: # first element is null
-					continue
-			print DelimeterL.join(LeftDS[i]) + DelimeterR.join(RightDS[j])
-	# -============== FULL OUTER JOIN PART ==============-			
-	elif JoinType == "Full": #Full outer join
-		for i in xrange(len(LeftDS)):
-			if i == 0: # first element is null
-				continue
-			for j in xrange(len(RightDS)):
-				if j == 0: # first element is null
-					continue
-			print DelimeterL.join(LeftDS[i]) + DelimeterR.join(RightDS[j])
-	else:
-		raise Exception("Unknown JoinType: " + JoinType)
+			print DelimeterL.join(LeftDS[i]) + DelimeterR.join(RightDS)
 def ReadStream (JoinType, DSColCounts, SelectIDX):
 	Delimeter = ';'
 	IntermValDelim = ';'
@@ -58,6 +28,9 @@ def ReadStream (JoinType, DSColCounts, SelectIDX):
 	PrevKey = []
 	iter = 0
 	if len(JoinType) == 0:
+		JoinType = "Inner"
+	if JoinType !="Full" or JoinType !="Left" or JoinType !="Right" or JoinType !="Inner":
+		print "Unknown join method, use Inner"
 		JoinType = "Inner"
 	# -============== GENERATING EMPTY DS PART ==============-			
 	if SelectIDX.count(";")>0:
