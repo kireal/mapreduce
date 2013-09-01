@@ -13,13 +13,30 @@ streaming.
 4. Example run
 	4.1 Download example data from (https://developers.google.com/freebase/data), go to "Freebase Deleted Triples"
 	4.2 Unzip data
-	4.2 Make two datasets:
-		cat deletions/deletions.csv-00005-of-00020 | awk -F, '{print $1,$2,$3}' OFS=, > LeftDS
-		cat deletions/deletions.csv-00005-of-00020 | awk -F, '{print $1,$2,$3,$4}' OFS=, > RightDS
-	4.3 Put data to HDFS:
-		hadoop fs -mkdir /user/hadoop/join/input
-		hadoop fs -put RightDS /user/hadoop/join/input
-		hadoop fs -put LeftDS /user/hadoop/join/input
+	4.2 Make two datasets (use one of these methods):
+		4.2.1 Use AWK
+			4.2.1.1
+				cat deletions/deletions.csv-00005-of-00020 | awk -F, '{print $1,$2,$3}' OFS=, > LeftDS
+				cat deletions/deletions.csv-00005-of-00020 | awk -F, '{print $1,$2,$3,$4}' OFS=, > RightDS
+			4.2.1.2 Put data to HDFS:
+				hadoop fs -mkdir /user/hadoop/join/input
+				hadoop fs -put RightDS /user/hadoop/join/input
+				hadoop fs -put LeftDS /user/hadoop/join/input
+		4.2.2
+			4.2.2.1
+				hadoop fs -put deletions/deletions.csv* /user/hadoop/join/input
+			4.2.2.2
+				hadoop jar /Applications/hadoop/contrib/streaming/hadoop-streaming-1.2.1.jar \
+				-partitioner org.apache.hadoop.mapred.lib.KeyFieldBasedPartitioner \
+				-file /Users/hadoop/mapreduce/projection/mapper.py -mapper mapper.py \
+				-input  /user/hadoop/join/input \
+				-output /user/hadoop/join/inputL \
+				-jobconf mapred.map.tasks=4 \
+				-jobconf mapred.reduce.tasks=0 \
+				-jobconf stream.map.output.field.separator=\t \
+				-jobconf stream.num.map.output.key.fields=1 \
+				-jobconf num.key.fields.for.partition=1 \
+				-cmdenv Delimeter="," -cmdenv SelectIDX=","
 	4.4 Run Map Reduse task:
 hadoop jar /Applications/hadoop/contrib/streaming/hadoop-streaming-1.2.1.jar \
 -partitioner org.apache.hadoop.mapred.lib.KeyFieldBasedPartitioner \
@@ -27,6 +44,7 @@ hadoop jar /Applications/hadoop/contrib/streaming/hadoop-streaming-1.2.1.jar \
 -file /Users/hadoop/mapreduce/join/reduceside/joinreducer.py -reducer joinreducer.py \
 -input  /user/hadoop/join/input \
 -output /user/hadoop/join/output \
+-jobconf mapred.reduce.tasks=4
 -jobconf stream.map.output.field.separator=\t \
 -jobconf stream.num.map.output.key.fields=1 \
 -jobconf num.key.fields.for.partition=1 \
