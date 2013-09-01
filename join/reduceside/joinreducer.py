@@ -78,6 +78,7 @@ def ReadStream (JoinType, DSColCounts, SelectIDX):
 	DelimeterR = Delimeter
 	# -============== READING STREAM PART ==============-		
 	for line in sys.stdin:
+		try:
 			line = line.strip()
 			split_txt = line.split(IntermKeyDelim) #extract key and value (by default \t is separator)
 			key = split_txt[0]	#extract key
@@ -99,6 +100,8 @@ def ReadStream (JoinType, DSColCounts, SelectIDX):
 				LeftDS.append(value[1:])
 			elif value[0]=="R":
 				RightDS.append(value[1:])
+		except:
+			print "Error:cannot parse row"		
 	Join(JoinType, LeftDS, RightDS, DelimeterL, DelimeterR) #Join DSs s - last key
 JoinType = "Inner"
 DSColCounts = "1, 1" #column count in each dataset
