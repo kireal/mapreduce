@@ -18,7 +18,7 @@ def Join (JoinType, LeftDS, RightDS, DelimeterL, DelimeterR):
 		for j in xrange(len(RightDS)):
 			if j == 0: # first element is null
 				continue
-			print DelimeterL.join(LeftDS[i]) + DelimeterR.join(RightDS[j])
+			print DelimeterL.join(LeftDS[i]) + DelimeterL + DelimeterR.join(RightDS[j])
 def ReadStream (JoinType, DSColCounts, SelectIDX):
 	Delimeter = ';'
 	IntermValDelim = ';'
