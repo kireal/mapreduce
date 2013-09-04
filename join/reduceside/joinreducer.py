@@ -7,7 +7,7 @@
 #	Simple python script to join to data set (files)
 #	Reduce side implementation (map by key, tagging and loop output in reduce step)
 #
-# 30.08.2013
+# 01.09.2013
 #
 import sys,os,getopt,optparse,string,commands
 def Join (JoinType, LeftDS, RightDS, DelimeterL, DelimeterR):
